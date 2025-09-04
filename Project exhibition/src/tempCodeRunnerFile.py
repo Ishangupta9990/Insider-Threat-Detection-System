@@ -1,0 +1,1 @@
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")

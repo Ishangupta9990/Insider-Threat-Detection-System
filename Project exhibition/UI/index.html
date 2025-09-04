@@ -1,0 +1,63 @@
+<!-- <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Behavioral Auth Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Behavioral Auth — Dashboard</h1>
+      <div id="status" class="status normal">Initializing...</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Latest Logs</h3>
+        <pre id="logs" class="mono">loading...</pre>
+      </div>
+
+      <div class="card">
+        <h3>Anomaly Events</h3>
+        <ul id="events"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Anomaly Score (recent)</h3>
+        <canvas id="scoreChart" height="150"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Controls</h3>
+        <button id="trainBtn">Train Model</button>
+        <button id="enrollBtn">Enroll Typing</button>
+        <p class="hint">Tip: Use Quick Demo logs / cause a spike to trigger verification</p>
+      </div>
+    </section>
+
+    <footer>
+      <small>Local demo • Data stays on device</small>
+    </footer>
+  </main>
+
+  <!-- Verification Modal -->
+  <div id="verifyModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Security Check</h2>
+      <p>Suspicious activity detected. Please type the sentence below exactly:</p>
+      <p id="verifySentence" class="sentence">I am the authorized user.</p>
+      <input id="verifyInput" type="text" autofocus />
+      <div class="buttons">
+        <button id="verifySubmit">Submit</button>
+        <button id="verifyCancel">Cancel</button>
+      </div>
+      <div id="verifyResult"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html> -->

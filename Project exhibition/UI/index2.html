@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI User Detection Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #151C2A;
+            color: #C7D0E6;
+        }
+
+        .gradient-border-blue {
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(45deg, #4A90E2, #76B4F3);
+        }
+
+        .gradient-border-orange {
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(45deg, #F5A623, #FFD700);
+        }
+
+        .anomaly-card {
+            background: linear-gradient(135deg, #2A1D0D, #40341B);
+            border-left: 4px solid #F5A623;
+        }
+
+        .text-electric-blue {
+            color: #4A90E2;
+        }
+
+        #risk-score-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 2s ease-in-out;
+        }
+
+        .scrollable-content {
+            height: 250px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4b5563 #1f2937;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="text-[#C7D0E6]">
+
+    <!-- The main dashboard view -->
+    <div id="dashboard-page" class="min-h-screen p-4 sm:p-8">
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-8">
+            <h1
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 tracking-wide">
+                AI User Detection</h1>
+            <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+                <span class="text-sm text-[#D6CFC9]">Welcome back, John Doe</span>
+                <div class="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-300">JD</div>
+            </div>
+        </header>
+
+        <!-- Anomaly Alert -->
+        <div id="anomaly-alert-banner"
+            class="hidden anomaly-card rounded-xl p-4 mb-8 flex items-center space-x-4 transition-all duration-300 transform scale-100 hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-400 animate-pulse" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M8.257 3.099c.765-1.096 2.245-1.096 3.01 0l3.597 5.143c.765 1.096-.043 2.529-1.503 2.529H4.363c-1.46 0-2.268-1.433-1.503-2.529L8.257 3.099z"
+                    clip-rule="evenodd" />
+            </svg>
+            <div>
+                <h3 class="font-bold text-lg text-amber-300">Anomaly Detected!</h3>
+                <p class="text-sm text-amber-400">Unusual typing speed and mouse movements detected at 10:45 AM. Review
+                    activity now.</p>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Column: Primary Metrics -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- AI Risk Score & Behavioral Biometrics -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- AI Risk Score Card -->
+                    <div
+                        class="bg-[#1a2333] rounded-xl p-6 shadow-xl flex items-center space-x-6 gradient-border-orange">
+                        <div class="relative w-24 h-24">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle class="text-gray-700" stroke-width="8" stroke="currentColor" fill="transparent"
+                                    r="45" cx="48" cy="48" />
+                                <circle id="risk-score-ring" stroke-width="8" stroke-linecap="round"
+                                    stroke-linejoin="round" fill="transparent" r="45" cx="48" cy="48"
+                                    class="text-yellow-400" />
+                            </svg>
+                            <span id="risk-score"
+                                class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-yellow-400">--</span>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-semibold mb-2 text-amber-300">AI Risk Score</h2>
+                            <p class="text-sm text-gray-400">A score above 30 indicates high anomaly correlation. </p>
+                            <span class="text-xs text-amber-400 font-medium mt-1 inline-block">High Risk: Manual Review
+                                Required</span>
+                        </div>
+                    </div>
+
+                    <!-- Behavioral Biometrics Card -->
+                    <div class="bg-[#1a2333] rounded-xl p-6 shadow-xl gradient-border-blue">
+                        <h2 class="text-xl font-semibold mb-4 text-blue-300">Behavioral Biometrics</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Mouse Speed</p>
+                                <p id="mouse-speed" class="text-2xl font-bold mt-1 text-electric-blue">-- px/ms</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Typing Keystrokes</p>
+                                <p id="keystroke-dynamics" class="text-2xl font-bold mt-1 text-electric-blue">-- ms</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Mouse Idle Time</p>
+                                <p id="mouse-idle" class="text-2xl font-bold mt-1 text-electric-blue">--s</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Scroll Events</p>
+                                <p id="scroll-events" class="text-2xl font-bold mt-1 text-electric-blue">--/hr</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Activity Summary -->
+                <div class="bg-[#1a2333] rounded-xl p-6 shadow-xl gradient-border-blue h-64 overflow-hidden">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-300">Daily Activity Summary</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div class="bg-[#242e40] rounded-lg p-4 shadow-inner">
+                            <p class="text-sm font-medium text-gray-400">Total Hours</p>
+                            <p id="total-hours" class="text-2xl font-bold mt-1 text-electric-blue">-- hrs</p>
+                        </div>
+                        <div class="bg-[#242e40] rounded-lg p-4 shadow-inner">
+                            <p class="text-sm font-medium text-gray-400">Login Time</p>
+                            <p id="login-time" class="text-2xl font-bold mt-1 text-electric-blue">--</p>
+                        </div>
+                        <div class="bg-[#242e40] rounded-lg p-4 shadow-inner">
+                            <p class="text-sm font-medium text-gray-400">Logout Time</p>
+                            <p id="logout-time" class="text-2xl font-bold mt-1 text-electric-blue">--</p>
+                        </div>
+                        <div class="bg-[#242e40] rounded-lg p-4 shadow-inner">
+                            <p class="text-sm font-medium text-gray-400">Typing Speed</p>
+                            <p id="typing-speed" class="text-2xl font-bold mt-1 text-electric-blue">-- WPM</p>
+                        </div>
+                        <div class="sm:col-span-4 bg-[#242e40] rounded-lg p-4 shadow-inner">
+                            <p class="text-sm font-medium text-gray-400">Session Duration</p>
+                            <div class="w-full h-4 bg-gray-600 rounded-full mt-2">
+                                <div id="duration-bar"
+                                    class="h-full bg-blue-500 rounded-full transition-all duration-500"
+                                    style="width: 0%;"></div>
+                            </div>
+                            <p class="text-right text-xs mt-1 text-gray-400"><span id="duration-text">--</span> of 10h
+                                Expected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interest vs. Time Graph -->
+                <div class="bg-[#1a2333] rounded-xl p-6 shadow-xl gradient-border-blue h-80">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-300">Interests Over Time</h2>
+                    <canvas id="interestChart"></canvas>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Real-Time & Anomalies -->
+            <div class="space-y-6">
+
+                <!-- Real-time Activity Stream -->
+                <div class="bg-[#1a2333] rounded-xl p-6 shadow-xl gradient-border-blue">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-300">Real-Time Activity Stream</h2>
+                    <div id="activity-stream" class="space-y-3 scrollable-content">
+                        <!-- Activity entries will be dynamically injected here -->
+                    </div>
+                </div>
+
+                <!-- Anomalies Detected -->
+                <div class="bg-[#1a2333] rounded-xl p-6 shadow-xl relative gradient-border-orange">
+                    <div class="absolute top-0 right-0 m-4">
+                        <span id="anomaly-count-badge"
+                            class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">0</span>
+                    </div>
+                    <h2 class="text-xl font-semibold mb-4 text-amber-300">Anomalies Detected</h2>
+                    <div id="anomalies-list" class="space-y-4">
+                        <!-- Anomaly items will be injected here by JS -->
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="show-more-anomalies"
+                            class="text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">View
+                            All</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- The detailed anomalies view -->
+    <div id="anomaly-details-page" class="hidden min-h-screen p-4 sm:p-8">
+        <header class="flex items-center mb-8">
+            <button id="back-to-dashboard" class="text-gray-400 hover:text-white transition-colors mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </button>
+            <h1 class="text-3xl font-bold text-amber-300">Detailed Anomaly Log</h1>
+        </header>
+        <div id="detailed-anomalies-list" class="space-y-4">
+            <!-- Detailed anomaly items will be injected here by JS -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // UI Elements
+            const dashboardPage = document.getElementById('dashboard-page');
+            const anomalyDetailsPage = document.getElementById('anomaly-details-page');
+            const anomalyBanner = document.getElementById('anomaly-alert-banner');
+            const anomalyCountBadge = document.getElementById('anomaly-count-badge');
+            const anomaliesList = document.getElementById('anomalies-list');
+            const detailedAnomaliesList = document.getElementById('detailed-anomalies-list');
+            const activityStream = document.getElementById('activity-stream');
+            const riskScoreRing = document.getElementById('risk-score-ring');
+            const riskScoreElement = document.getElementById('risk-score');
+
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    // Use the data in your dashboard
+                    console.log(data);
+                });
+
+            // Behavioral Biometrics
+            const mouseSpeedEl = document.getElementById('mouse-speed');
+            const keystrokeDynamicsEl = document.getElementById('keystroke-dynamics');
+            const mouseIdleEl = document.getElementById('mouse-idle');
+            const scrollEventsEl = document.getElementById('scroll-events');
+
+            // Daily Activity Summary
+            const totalHoursEl = document.getElementById('total-hours');
+            const loginTimeEl = document.getElementById('login-time');
+            const logoutTimeEl = document.getElementById('logout-time');
+            const typingSpeedEl = document.getElementById('typing-speed');
+            const durationBarEl = document.getElementById('duration-bar');
+            const durationTextEl = document.getElementById('duration-text');
+
+            // Global data storage for anomalies and detailed view
+            let allAnomalies = [];
+            let interestChart;
+
+            // Initialize the Interests Over Time chart
+            const ctx = document.getElementById('interestChart').getContext('2d');
+            interestChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Programming',
+                            data: [],
+                            borderColor: '#4A90E2',
+                            backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                        },
+                        {
+                            label: 'Data Science',
+                            data: [],
+                            borderColor: '#C7D0E6',
+                            backgroundColor: 'rgba(199, 208, 230, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#a0aec0' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#a0aec0' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#a0aec0' } },
+                        tooltip: {
+                            backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#cbd5e0',
+                            borderColor: '#4a5568',
+                            borderWidth: 1,
+                            cornerRadius: 6
+                        }
+                    }
+                }
+            });
+
+            // WebSocket connection to receive real-time data
+            // NOTE: This URL must point to your running WebSocket server. The error you received means the server is not active or accessible at this address.
+            const ws = new WebSocket('ws://localhost:8080');
+
+            ws.onopen = () => {
+                console.log('Connected to WebSocket server');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received data:', data);
+                updateDashboard(data);
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from WebSocket server');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket connection failed. Please ensure your local server is running at `ws://localhost:8080`.', error);
+            };
+
+            function updateDashboard(data) {
+                // Update AI Risk Score
+                if (data.riskScore !== undefined) {
+                    animateRiskScore(data.riskScore);
+                    riskScoreElement.textContent = data.riskScore;
+                }
+
+                // Update Behavioral Biometrics
+                if (data.metrics) {
+                    mouseSpeedEl.textContent = `${data.metrics.mouseSpeed || '--'} px/ms`;
+                    keystrokeDynamicsEl.textContent = `${data.metrics.keystrokeDynamics || '--'} ms`;
+                    mouseIdleEl.textContent = `${data.metrics.mouseIdle || '--'}s`;
+                    scrollEventsEl.textContent = `${data.metrics.scrollEvents || '--'}/hr`;
+                }
+
+                // Update Daily Activity Summary
+                if (data.summary) {
+                    totalHoursEl.textContent = `${data.summary.totalHours || '--'} hrs`;
+                    loginTimeEl.textContent = data.summary.loginTime || '--';
+                    logoutTimeEl.textContent = data.summary.logoutTime || '--';
+                    typingSpeedEl.textContent = `${data.summary.typingSpeed || '--'} WPM`;
+                    if (data.summary.sessionDuration) {
+                        const durationInMinutes = data.summary.sessionDuration;
+                        const durationInHours = durationInMinutes / 60;
+                        const durationPercent = (durationInHours / 10) * 100;
+                        durationBarEl.style.width = `${Math.min(durationPercent, 100)}%`;
+                        const hours = Math.floor(durationInMinutes / 60);
+                        const minutes = Math.floor(durationInMinutes % 60);
+                        durationTextEl.textContent = `${hours}h ${minutes}m`;
+                    }
+                }
+
+                // Add to Real-Time Activity Stream
+                if (data.realTimeEvent) {
+                    const entry = document.createElement('div');
+                    entry.className = 'text-sm text-gray-400 p-2 rounded-lg bg-[#242e40] hover:bg-[#33425e] transition-colors';
+                    entry.textContent = `${new Date().toLocaleTimeString()} - ${data.realTimeEvent}`;
+                    if (activityStream.firstChild) {
+                        activityStream.insertBefore(entry, activityStream.firstChild);
+                    } else {
+                        activityStream.appendChild(entry);
+                    }
+                    while (activityStream.children.length > 10) {
+                        activityStream.removeChild(activityStream.lastChild);
+                    }
+                }
+
+                // Handle Anomalies
+                if (data.anomalies && data.anomalies.length > 0) {
+                    data.anomalies.forEach(anomaly => {
+                        allAnomalies.unshift(anomaly); // Add to the beginning of the list
+
+                        // Update the dashboard badge
+                        anomalyCountBadge.textContent = allAnomalies.length;
+                        if (anomaly.severity === 'High') {
+                            anomalyBanner.classList.remove('hidden');
+                            anomalyBanner.querySelector('p').textContent = anomaly.description;
+                        }
+                    });
+
+                    renderAnomalies();
+                }
+
+                // Update Interests Over Time Graph
+                if (data.interests) {
+                    const labels = data.interests.map(i => i.name);
+                    const programmingData = data.interests.find(i => i.name === 'Programming')?.data || [];
+                    const dataScienceData = data.interests.find(i => i.name === 'Data Science')?.data || [];
+
+                    interestChart.data.labels = labels;
+                    interestChart.data.datasets[0].data = programmingData;
+                    interestChart.data.datasets[1].data = dataScienceData;
+                    interestChart.update();
+                }
+            }
+
+            function renderAnomalies() {
+                anomaliesList.innerHTML = '';
+                allAnomalies.slice(0, 2).forEach((anomaly) => {
+                    const anomalyItem = document.createElement('div');
+                    anomalyItem.className = 'relative bg-[#242e40] rounded-lg p-3 cursor-pointer hover:bg-[#33425e] transition-colors duration-200';
+                    anomalyItem.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold">${anomaly.type}</span>
+                            <span class="text-xs text-gray-400">${anomaly.time}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">${anomaly.description}</p>
+                        <div class="absolute z-10 hidden top-full left-1/2 transform -translate-x-1/2 -translate-y-2 mt-2 p-3 bg-[#1a2333] rounded-lg shadow-xl text-xs text-[#C7D0E6] w-64 border border-[#242e40]">
+                            <p class="font-bold text-amber-300 mb-1">Severity: ${anomaly.severity}</p>
+                            <p class="text-[#C7D0E6]">${anomaly.details}</p>
+                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-[#1a2333] rotate-45 border-t border-l border-[#242e40]"></div>
+                        </div>
+                    `;
+                    anomalyItem.addEventListener('mouseenter', (e) => {
+                        e.target.querySelector('div:last-child').classList.remove('hidden');
+                    });
+                    anomalyItem.addEventListener('mouseleave', (e) => {
+                        e.target.querySelector('div:last-child').classList.add('hidden');
+                    });
+                    anomalyItem.addEventListener('click', showDetailedAnomalies);
+                    anomaliesList.appendChild(anomalyItem);
+                });
+            }
+
+            // Functions to handle page views
+            function showDashboard() {
+                dashboardPage.classList.remove('hidden');
+                anomalyDetailsPage.classList.add('hidden');
+            }
+
+            function showDetailedAnomalies() {
+                dashboardPage.classList.add('hidden');
+                anomalyDetailsPage.classList.remove('hidden');
+                detailedAnomaliesList.innerHTML = '';
+                allAnomalies.forEach(anomaly => {
+                    const anomalyItem = document.createElement('div');
+                    anomalyItem.className = 'bg-[#1a2333] rounded-xl p-6 shadow-xl gradient-border-orange';
+                    anomalyItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-lg text-amber-300">${anomaly.type}</h3>
+                            <span class="text-sm text-[#C7D0E6]">${anomaly.time}</span>
+                        </div>
+                        <p class="text-sm text-[#C7D0E6] mb-2">${anomaly.description}</p>
+                        <ul class="text-sm text-gray-500 space-y-1">
+                            <li><span class="font-semibold text-amber-400">Severity:</span> ${anomaly.severity}</li>
+                            <li><span class="font-semibold text-amber-400">Details:</span> ${anomaly.details}</li>
+                            <li><span class="font-semibold text-amber-400">Site/App:</span> ${anomaly.site}</li>
+                            <li><span class="font-semibold text-amber-400">IP Address:</span> ${anomaly.ip}</li>
+                        </ul>
+                    `;
+                    detailedAnomaliesList.appendChild(anomalyItem);
+                });
+            }
+
+            // Animate the risk score ring
+            function animateRiskScore(score) {
+                const normalizedScore = Math.min(Math.max(score, 0), 100);
+                const circumference = 2 * Math.PI * 45; // 2 * PI * r
+                const offset = circumference - (normalizedScore / 100) * circumference;
+                riskScoreRing.style.strokeDashoffset = offset;
+            }
+
+            // Event listeners for UI navigation
+            document.getElementById('back-to-dashboard').addEventListener('click', showDashboard);
+            document.getElementById('show-more-anomalies').addEventListener('click', showDetailedAnomalies);
+        });
+    </script>
+</body>
+
+</html>
