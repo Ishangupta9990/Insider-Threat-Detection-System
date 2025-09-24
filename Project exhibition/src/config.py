@@ -1,9 +1,9 @@
 # Configuration - tune thresholds, paths, and policy here.
 
-LOG_PATH = "data/synthetic_logs.jsonl"
-MODEL_PATH = "data/model.joblib"
-TYPING_PROFILE_PATH = "data/typing_profile.json"
-EVENTS_PATH = "data/events.jsonl"
+LOG_PATH = "../data/logs.jsonl"
+MODEL_PATH = "../data/model.joblib"
+TYPING_PROFILE_PATH = "../data/typing_profile.json"
+EVENTS_PATH = "../data/events.jsonl"
 
 # Sampling and windowing
 LOG_INTERVAL_SEC = 8          # how often logger samples

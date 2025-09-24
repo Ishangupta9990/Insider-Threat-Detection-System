@@ -32,7 +32,7 @@ def aggregate_window(df: pd.DataFrame, window: int = 6) -> pd.DataFrame | None:
 
     slice_df = df.tail(window)
     return pd.DataFrame([{
-        "cpu_mean": slice_df["cpu"].mean(),
-        "ram_mean": slice_df["ram"].mean(),
-        "proc_mean": slice_df["processes"].mean(),
+        "cpu_mean": slice_df["cpu_percent"].mean(),
+        "ram_mean": slice_df["mem_percent"].mean(),
+        "proc_mean": slice_df["process_count"].mean(),
     }])
