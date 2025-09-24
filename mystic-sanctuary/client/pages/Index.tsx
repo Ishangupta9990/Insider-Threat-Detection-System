@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
+import { AnomalyPopup } from "@/components/ui/anomaly-popup";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type StatusResp = { last_score: number | null; last_status: string; model_loaded: boolean };
@@ -10,6 +11,7 @@ type LogRow = { timestamp: string; hour?: number; weekday?: number; process_coun
 export default function Index() {
   const [status, setStatus] = useState<StatusResp | null>(null);
   const [logs, setLogs] = useState<LogRow[]>([]);
+  const [showAnomalyPopup, setShowAnomalyPopup] = useState(false);
 
   useEffect(() => {
     const tick = async () => {
@@ -46,8 +48,17 @@ export default function Index() {
     <AppLayout>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <div className={`px-3 py-1 rounded text-sm ${statusText.includes("anomaly") ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
-          Status: {statusText} {status?.model_loaded ? "" : "(untrained)"}
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => setShowAnomalyPopup(true)}
+            variant="destructive" 
+            size="sm"
+          >
+            Demo Anomaly
+          </Button>
+          <div className={`px-3 py-1 rounded text-sm ${statusText.includes("anomaly") ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+            Status: {statusText} {status?.model_loaded ? "" : "(untrained)"}
+          </div>
         </div>
       </div>
 
@@ -97,6 +108,11 @@ export default function Index() {
           </div>
         </div>
       </div>
+
+      <AnomalyPopup 
+        isOpen={showAnomalyPopup} 
+        onClose={() => setShowAnomalyPopup(false)} 
+      />
     </AppLayout>
   );
 }
