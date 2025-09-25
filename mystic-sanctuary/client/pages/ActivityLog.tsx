@@ -9,13 +9,17 @@ type LogRow = { timestamp: string; hour?: number; weekday?: number; process_coun
 export default function ActivityLog() {
   const [rows, setRows] = useState<LogRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredRows, setFilteredRows] = useState<LogRow[]>([]);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         const data: LogRow[] = await fetch("/api/logs?n=200").then(r => r.json());
-        setRows(data.reverse()); // newest first → bottom
+        const reversedData = data.reverse(); // newest first → bottom
+        setRows(reversedData);
+        setFilteredRows(reversedData);
       } catch { /* ignore */ }
       setLoading(false);
     };
@@ -23,6 +27,21 @@ export default function ActivityLog() {
     const id = setInterval(load, 5000);
     return () => clearInterval(id);
   }, []);
+
+  // Filter rows based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredRows(rows);
+    } else {
+      const filtered = rows.filter(row => 
+        row.timestamp?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.cpu_percent?.toString().includes(searchTerm) ||
+        row.mem_percent?.toString().includes(searchTerm) ||
+        row.process_count?.toString().includes(searchTerm)
+      );
+      setFilteredRows(filtered);
+    }
+  }, [rows, searchTerm]);
 
   return (
     <AppLayout>
@@ -35,10 +54,14 @@ export default function ActivityLog() {
         <aside className="rounded-lg bg-muted/40 border p-4 space-y-4">
           <div>
             <div className="text-sm font-medium mb-2">Search</div>
-            <Input placeholder="Filter…" />
+            <Input 
+              placeholder="Filter by time, CPU, memory..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <div className="text-sm text-muted-foreground">
-            Showing last {rows.length} samples {loading ? "(refreshing…)" : ""}
+            Showing {filteredRows.length} of {rows.length} samples {loading ? "(refreshing…)" : ""}
           </div>
         </aside>
 
@@ -53,7 +76,7 @@ export default function ActivityLog() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {filteredRows.map((r, i) => (
                 <tr key={i} className="border-t border-border/40">
                   <td className="py-2">{r.timestamp?.replace("T", " ").slice(0,19) || "-"}</td>
                   <td>{r.cpu_percent ?? "-"}</td>
